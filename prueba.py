@@ -1,25 +1,8 @@
-verbs = {
-        'add':0,
-        'fix':0,
-        'use':0,
-        'update':0,
-        'remove':0,
-        'make':0,
-        'change':0,
-        'move':0,
-        'allow':0,
-        'improve':0,
-        'implement':0,
-        'create':0,
-        'upgrade':0
-    }
+import pandas as pd
 
-messageverb = 'juanito'
-print(len(verbs))
-
-try:
-    verbs[messageverb] += 1
-except:
-    messageverb = None
-print(len(verbs))
-print(verbs)
+# data_file_name = 'full.csv'
+# data_directory = '../DATA'
+# data_file_path = f'{data_directory}/{data_file_name}'
+# df = pd.read_csv(data_file_path,nrows=10000)
+# print(df['commit'].iloc[8493])
+# check the data is the same in the chunks and in one file
