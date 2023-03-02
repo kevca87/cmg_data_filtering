@@ -5,6 +5,7 @@ import multiprocessing as mp
 from multiprocessing import Value, Lock
 import os
 from tqdm import tqdm
+import sys
 
 verbs = {
         'add':0,
@@ -79,7 +80,7 @@ def process_chunk(chunk:pd.DataFrame):
     return chunk
 
 if __name__ == '__main__':
-
+    
     data_file_name = 'full.csv'
     data_directory = '../DATA'
     data_file_path = f'{data_directory}/{data_file_name}'
@@ -87,8 +88,7 @@ if __name__ == '__main__':
     chunk_size = 100000
     
     print(f'Starting to read "{data_file_path}" ...')
-    chunks = pd.read_csv(data_file_path, chunksize=chunk_size,usecols=['commit','message','repo'])
-    
+    chunks = pd.read_csv(data_file_path, chunksize=chunk_size,usecols=['repo','author','commit','message'])
     pool = mp.Pool(processes=4)
     results = pool.map(process_chunk, chunks)
     
