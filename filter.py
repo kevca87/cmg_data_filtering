@@ -73,10 +73,12 @@ def process_chunk(chunk:pd.DataFrame):
     commit_id_first = chunk['commit'].iloc[0][:7]
     commit_id_last = chunk['commit'].iloc[-1][:7]
     chunk_first_element_index = chunk.index[0]
-    chunk = chunk.apply(row_processing,axis=1)
+    chunk_last_element_index = chunk.index[-1]
     chunk_filename = f'{chunks_dir}/chunk_{chunk_first_element_index:08d}_{commit_id_first}_{commit_id_last}.csv'
+    tqdm.pandas(leave=True,desc=chunk_filename)
+    chunk = chunk.progress_apply(row_processing,axis=1)
     chunk.to_csv(chunk_filename,index=True)
-    print(f'Saving to {chunk_filename}')
+    # print(f'Saving to {chunk_filename}')
     return chunk
 
 if __name__ == '__main__':
@@ -85,15 +87,23 @@ if __name__ == '__main__':
     data_directory = '../DATA'
     data_file_path = f'{data_directory}/{data_file_name}'
 
-    chunk_size = 100000
+    chunk_size = 1000
     
     print(f'Starting to read "{data_file_path}" ...')
-    chunks = pd.read_csv(data_file_path, chunksize=chunk_size,usecols=['repo','author','commit','message'])
+    
+    chunks = pd.read_csv(data_file_path, chunksize=chunk_size,usecols=['repo','author','commit','message'],nrows=10000)
+    
+    print(f'Starting to processing the data')
+    print(f'Writing files ...')
+    start_time = time.time()
     pool = mp.Pool(processes=4)
+    #results = list(tqdm(pool.imap(process_chunk, chunks),total=chunks.nrows/chunk_size))
+    
     results = pool.map(process_chunk, chunks)
     
     pool.close()
     pool.join()
-
+    print("Process the entire dataset took %s seconds." % (time.time() - start_time))
+    print('Concatenating data ...')
     combined_df = pd.concat(results)
     combined_df.to_csv('concatenated.csv')
