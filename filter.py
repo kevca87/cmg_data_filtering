@@ -96,7 +96,7 @@ if __name__ == '__main__':
     print(f'Starting to processing the data')
     print(f'Writing files ...')
     start_time = time.time()
-    pool = mp.Pool(processes=4)
+    pool = mp.Pool(processes=2)
     #results = list(tqdm(pool.imap(process_chunk, chunks),total=chunks.nrows/chunk_size))
     
     results = pool.map(process_chunk, chunks)
