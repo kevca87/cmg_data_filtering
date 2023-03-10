@@ -14,7 +14,6 @@ import re
 commit_diffs_file_name = f'commits0.json'
 commit_diffs_file = open(f'{"../DATA"}/{commit_diffs_file_name}')
 commit_diffs = json.load(commit_diffs_file)
-print(commit_diffs["0"]["diff"])
 
 verbs = {
         'add':0,
@@ -126,4 +125,6 @@ if __name__ == '__main__':
     print("Process the entire dataset took %s seconds." % (time.time() - start_time))
     print('Concatenating data ...')
     combined_df = pd.concat(results)
-    combined_df.to_csv('concatenated.csv')
+    concatenated_file_name = 'concatenated.csv'
+    combined_df.to_csv(concatenated_file_name)
+    print(f'Finished, concatenated data could be found in "{concatenated_file_name}"')
