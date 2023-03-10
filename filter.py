@@ -6,6 +6,15 @@ from multiprocessing import Value, Lock
 import os
 from tqdm import tqdm
 import sys
+import pybmoore
+import json
+import re
+  
+# Reading commit diffs
+commit_diffs_file_name = f'commits0.json'
+commit_diffs_file = open(f'{"../DATA"}/{commit_diffs_file_name}')
+commit_diffs = json.load(commit_diffs_file)
+print(commit_diffs["0"]["diff"])
 
 verbs = {
         'add':0,
@@ -52,13 +61,24 @@ def get_verb(doc_tokenized):
             doc_verb = None
     return  doc_verb
 
+def get_diff_from_file(idx):
+    return commit_diffs[str(idx)]["diff"]
+
+def count_files_modified(commit_diff):
+    pattern = "diff --git "
+    matches = re.findall(pattern,commit_diff)
+    return len(matches)
+
 def row_processing(row):
     commit_message = row['message']
     commit_message_tokenized = tokenizer(commit_message)
     # row['message_tokenized'] = commit_message_tokenized
     commit_message_verb = get_verb(commit_message_tokenized)
+    commit_diff = get_diff_from_file(row.name)
+    commit_changed_files = count_files_modified(commit_diff)
     row['verb'] = commit_message_verb
-    row['mask'] = commit_message_verb != None
+    row['files_changed'] = commit_changed_files
+    row['mask'] = commit_message_verb != None and commit_changed_files < 4
     return row
 
 def process_chunk(chunk:pd.DataFrame):
@@ -88,7 +108,7 @@ if __name__ == '__main__':
     data_file_path = f'{data_directory}/{data_file_name}'
 
     chunk_size = 1000
-    
+
     print(f'Starting to read "{data_file_path}" ...')
     
     chunks = pd.read_csv(data_file_path, chunksize=chunk_size,usecols=['repo','author','commit','message'],nrows=10000)
